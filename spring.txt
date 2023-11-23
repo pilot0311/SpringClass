@@ -1,0 +1,121 @@
+1. sts3
+2. SpringClass 폴더 생성
+3. sts3 + Lombok 설치
+4 STS3 실행 + 메이븐(maven)빌드도구 + 스프링 프로젝트
+   1) 프로젝트명: SL00_DefaultSettings
+   2) top-levelp package : domain  -> org.doit.ik
+   3) 환경 설정
+5 pom.xml
+   1) jsp lib 폴더 안에 모듈(jre) 관리
+   2) pom.xml 파일을 사용해서 의존 모듈의 관리
+	<dependency></dependency> 태그를 추가하면 자동으로 원격저장소에서 다운로드 받아
+		.m2 폴더 안에 repository로컬 저장소에 저장
+		앞으로 스프링 수업 할 때 필요한 모듈 추가 이미 함
+6 스프링 MVC 구조로 프로젝트를 생성
+  1) 스프링 MVC 구조 이해
+							컨트롤러메서드
+	요청URL->컨트롤러 검색	requestAdapter -> 컨트롤러
+		requestMappings
+			↑	  ↓	결과저장
+     list.do -> Front Controller(MV[C] 서블릿)	
+					↓
+			View	ViewResolver
+
+7 처리 순서(과정) 이해
+  1) web.xml
+     ㄱ. MV[C] 프론트 컨트롤러 등록 + servlet-context.xml 설정파일 읽어와서 처리
+		HomeController 스프링 빈 객체 생성
+		- / home() 컨트롤러 메서드 사용
+    ㄴ. /WEB-INF/spring/root-context.xml	스프링 빈 객체 생성, 설정
+        /WEB-INF/spring/security-context.xml 	스프링 시큐리티(인증,권한) 설정 파일
+  
+  2) 브라우저  http://localhost
+
+8. src/main/resources 폴더 안에
+log4jdbc.log4j2.properties 추가
+
+log4jdbc.spylogdelegator.name=net.sf.log4jdbc.log.slf4j.Slf4jSpyLogDelegator
+
+8 ojdbc6.jar 필요
+-------- 11/23 ------------
+스프링 + mybatis 연동 [무작정 따라하기]
+1) root-context.xml
+   스프링 빈 객체들은 DB 연동할 때 사용하는 빈 객체가 등록
+
+  (1)<bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+  (2)<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+
+  -- pom.xml
+<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis p91-->
+      <dependency>
+          <groupId>org.mybatis</groupId>
+          <artifactId>mybatis</artifactId>
+          <version>3.4.6</version>
+      </dependency>
+      
+      <!-- https://mvnrepository.com/artifact/org.mybatis/mybatis-spring -->
+      <dependency>
+          <groupId>org.mybatis</groupId>
+          <artifactId>mybatis-spring</artifactId>
+          <version>1.3.2</version>
+      </dependency>
+
+  -- mybatis 연동 빈 객체
+   <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+     <property name="dataSource" ref="dataSource"></property>
+   </bean>
+      
+   <!-- p95 -->
+   <mybatis-spring:scan base-package="org.doit.ik.mapper"/>
+
+2)  jsp DB 수업
+list.do -> ListHandler -> ListService -> BoardDAO
+
+(1) org.doit.ik.mapper 패키지 생성
+(2)  ㄴ TimeMapper.java 인터페이스 추가
+(3) src/main/resources 폴더
+    ㄴ org
+        ㄴ doit
+            ㄴ ik
+               ㄴ mapper
+	        ㄴ TimeMapper.xml
+(4) home.jsp<h3><a href="/time">time</a></h3>
+  http://localhost/time 요청 -> 처리하는 컨트롤러 메서드
+MybatisController.java
+
+
+org.doit.ik.domain 패키지 추가
+ㄴ DeptDTO.java
+ㄴ EmpDTO.java
+2 home.jsp
+ ㄴ <a href="/scott/dept">dept</a>
+  /scott/dept 요청 url -> 컨트롤러
+ ㄴ HomeController.java
+ ㄴ ScottController.java
+public void dept(Local local, Model model)
+
+4. view
+    ㄴ scott 폴더
+	ㄴ dept.jsp
+
+5 org.doio.ik.mapper.scott패키지
+	ㄴ DeptMapper 인터페이스
+
+Array<DeotDTO> selectDept()
+org.doit.ik.mapper.scott
+ㄴ DeptMapper.xml
+ <select id="selectDept" resultType="org.doit.ik.domain.DeptDTO">
+       SELECT d.deptno, dname, loc, COUNT(e.empno) numberOfEmps    
+       FROM dept d FULL JOIN emp e ON d.deptno = e.deptno
+       GROUP BY d.deptno, dname, loc
+       ORDER BY deptno ASC
+     </select>
+
+
+scottController.java 언제 스프링 빈 객체 생성?
+ 서블릿-콘텍스트.xml : <context:component-scan base-package="org.doit.ik" />
+
+org.doit.ik.mapper.scott.DeptMapper.java :
+<mybatis-spring:scan base-package="org.doit.ik.mapper"/>
+
+버튼 추가
