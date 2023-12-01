@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.doit.ik.domain.NoticeVO;
 import org.doit.ik.persistence.NoticeDao;
+import org.doit.ik.service.MemberShipService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ import org.springframework.web.multipart.commons.CommonsMultipartFile;
 public class CustomerController {
 	@Autowired
 	private NoticeDao noticeDao;
+	@Autowired
+	private MemberShipService memberShipService;
 	
 	private static final Logger logger = LoggerFactory.getLogger(CustomerController.class);
 	
@@ -147,7 +150,8 @@ public class CustomerController {
 		notice.setWriter("pilot");
 		//int insertCount = this.noticeDao.insert(notice);
 		int insertCount = 1;
-		this.noticeDao.insertAndPointUpofMember(notice, "pilot");
+		//this.noticeDao.insertAndPointUpofMember(notice, "pilot");
+		this.memberShipService.insertAndPointUpofMember(notice, "pilot");
 		if (insertCount == 1) {
 			return "redirect:notice.htm";
 		}else {

@@ -27,6 +27,6 @@ public interface NoticeDao {
 	public int insert(NoticeVO notice) throws ClassNotFoundException, SQLException; 
 	
 	// 트랜잭션 처리 위한 메서드
-	void insertAndPointUpofMember(NoticeVO notice, String id) throws ClassNotFoundException, SQLException;
+	//void insertAndPointUpofMember(NoticeVO notice, String id) throws ClassNotFoundException, SQLException;
 	
 }

@@ -1,0 +1,15 @@
+https://maven.apache.org/download.cgi apache-maven 3.9.5 다운
+환경변수
+변수 이름 : M2_HOME
+값 : C:\apache-maven-3.9.5
+path
+%M2_HOME%\bin 추가
+
+c/mvnSpring 폴더추가
+
+cmd
+mvn archetype:generate -DgroupId=com.newlecture -DartifactId=javaprj -DarchetypeArtifactId=maven-archetype-quickstart
+
+groupId=com.newlecture 패키지명
+artifactId=javaprj 프로젝트명
+archetypeArtifactId=maven-archetype-quickstart(생성할 프로젝트 종류 : java project)

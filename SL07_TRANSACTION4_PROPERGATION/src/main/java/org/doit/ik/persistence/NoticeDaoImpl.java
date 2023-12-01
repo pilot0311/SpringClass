@@ -108,7 +108,39 @@ public class NoticeDaoImpl implements NoticeDao{
 		return this.npJdbcTemplate.queryForObject(sql, parameterSource,new BeanPropertyRowMapper<NoticeVO>(NoticeVO.class));
 	
 	}
-// 공지사항 추가
+	
+	// 2. 공지사항 등록 + 작성자 포인트 1증가
+	@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED)
+	public int insert(NoticeVO notice) throws ClassNotFoundException, SQLException {
+		// a. 공지사항 쓰기
+		String sql = "INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC) VALUES( (SELECT NVL(MAX(TO_NUMBER(SEQ))+1,1) FROM NOTICES), :title, :content, :writer, SYSDATE, 0, :filesrc)";
+		//a
+		SqlParameterSource parameterSource  = new BeanPropertySqlParameterSource(notice);
+		npJdbcTemplate.update(sql, parameterSource);
+		
+		// b. 작성자 포인트 1증가
+		String sql2 = "UPDATE member SET point = point+1 WHERE id = :id ";
+		//b
+		MapSqlParameterSource parameterSource2 = new MapSqlParameterSource();
+		parameterSource2.addValue("id", "pilot");
+		int updateCount = npJdbcTemplate.update(sql2, parameterSource2);
+		return updateCount;
+	}
+	
+	/*
+	// 6. 전파 방식 설명하기 위해 insertAndPointUpofMember 수정
+	@Override
+	@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED)
+	public void insertAndPointUpofMember(NoticeVO notice, String id) throws ClassNotFoundException, SQLException {
+		insert(notice);
+		
+		notice.setTitle(notice.getTitle()+"-2");
+		insert(notice);
+	}
+	*/
+	
+	/*
+	// 1. 공지사항 추가
 	public int insert(NoticeVO notice) throws ClassNotFoundException, SQLException {
 		// TODO Auto-generated method stub
 		String sql = "INSERT INTO NOTICES(SEQ, TITLE, CONTENT, WRITER, REGDATE, HIT, FILESRC) VALUES( (SELECT NVL(MAX(TO_NUMBER(SEQ))+1,1) FROM NOTICES), :title, :content, :writer, SYSDATE, 0, :filesrc)";
@@ -116,7 +148,9 @@ public class NoticeDaoImpl implements NoticeDao{
 		return this.npJdbcTemplate.update(sql, parameterSource); 
 		
 	}
+	*/
 	
+	/*
 	// 5. 어노테이션 트랜잭션 처리
 		@Override
 		@Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED)
@@ -135,6 +169,7 @@ public class NoticeDaoImpl implements NoticeDao{
 			int updateCount = npJdbcTemplate.update(sql2, parameterSource2);			
 				
 		}
+		*/
 	
 	/*
 	// 4. 선언적 트랜잭션 처리
