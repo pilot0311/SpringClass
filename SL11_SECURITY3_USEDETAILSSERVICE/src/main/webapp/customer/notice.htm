@@ -1,68 +1,60 @@
 /customer/notice.htm
 
 
-1. tbl_board 게시판 테이블 member 회원 테이블 2. 스프링 시큐리티 인증
-권한 처리 [인 메모리 인증방식]
-<security:user-service>
-	<security:user name="hong" authorities="ROLE_USER"
-		password="{noop}4321" />
-	<security:user name="admin"
-		authorities="ROLE_USER,ROLE_ADMIN,ROLE_MANAGER" password="{noop}4321" />
-</security:user-service>
+AM(인증 관리자)
+		↑
+PM(제공 관리자)  ↔ 	AP(인증제공자)	↔ UDS()
+							인증처리객체			인증정보객체
+													직접구현
+[2] 직접 USEDETAILSSERVICE	구현하는방법
 
-	[JDBC 연동해서 인증 방식]
+3.	어떤 인증 받은 추가적인 정보를 저장
+	MemberVO + 추가적인 정보 필드
+	AuthVO.java 권한정보
 	
-3. 스프링 시큐리티의 회원 테이블
-	CREATE TABLE users
-	(
-		username varchar2(50) not null primary key  -- 사용자 ID
-		, password varchar2(50) not null
-		, enabled char(1) default '1'  -- '0'
-	)
+4. 인증받은 정보를 저장 - DB 관련 코딩 추가, 수정
+	MemberMapper.java
+	MemberMapper.xml
 	
-	CREATE TABLE authorities
-	(
-		username varchar(50) not null
-		, authority varchar(50) not null
-		, constraint fk_?? foreign key(username) references users(username)
-	)
+	<resultMap type="org.doit.ik.domain.MemberVO" id="memberMap">
+		<id property="id" column="id"/>
+		<result property="id" column="id"/>
+		<result property="pwd" column="pwd"/>
+		<result property="name" column="name"/>
+		<result property="regdate" column="regdate"/>
+		<collection property="authList" resultMap="authMap">
+			<result property="username" column="username"/>
+			<result property="authority" column="authority"/>
+		</collection>
+	</resultMap>
+	<resultMap type="org.doit.ik.domain.AuthVO" id="authMap"></resultMap>
+	<select id="read" resultMap="memberMap">
+		SELECT id, pwd, name, enabled, regdate, authority
+		FROM member m LEFT JOIN member_authorities auth ON m.id = auth.username
+		WHERE m.id = #{userid}
+	</select>
 	
-4. security-context.xml
-	<security:jdbc-user-service data-source-ref="dataSource"/>
 	
-5. 기존의 member 테이블 사용 + authorities 테이블 생성
-	id -> username
-	pwd -> password
-	enabled 컬럼추가
+5. CustomUserDetailsService 직접 구현
+	오버라이딩
+	UserDetails  loadUserByUsername(String username)
+		username = member 테이블의 id
+		로그인한 회원정보를 select 작업
+		MemberVO 객체 생성 -> UserDetails 타입으로 변환
+	UserDetails 클래스 타입으로 반환
 	
-6. PasswordEncoder 임시 사용 X {noop}
- admin   $2a$10$g3e6L/DbcX7vR8cf4YvR9eGLJSYi/0cWHSor0.eJ9jC3lvxoxlwu2
- 	1) 스프링 제공하는 passwordEncoder 빈 등록
- 	
- 	<security:authentication-provider>
-			<security:jdbc-user-service 
-				data-source-ref="dataSource" 
-				users-by-username-query="SELECT id AS USERNAME, pwd AS PASSWORD, enabled FROM member WHERE id = ?"
-				authorities-by-username-query="SELECT username AS userid, authority AS auth FROM member_authorities WHERE username = ?  "
-			/>
-			<security:password-encoder ref="bCryptPasswordEncoder" />
-		</security:authentication-provider>
-		
-	2) joinController 수정
-		join.jsp -> <input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }"> 확인
-		 
-		 joinController 수정
-		@Autowired
-	private PasswordEncoder passwordEncoder;
+	org.doit.ik.security.domain.CustomerUser
 	
-	@PostMapping("join.htm")
-	public String join(MemberVO member)throws Exception{
-		String pwd = member.getPwd();
-		member.setPwd(this.passwordEncoder.encode(pwd));
-		
-		this.memberDao.insert(member);
-		return "redirect:../index.htm";
-	}
+	/////////////////////////////////////////////////
 	
-	3) hong,pilot,admin 계정 추가
-		
+	웹 소켓
+	html5 - API : 웹 소켓
+	
+	자바의 웹 소켓 표준에 맞춰
+	웹소켓 서버 기능을 구현할 경우
+	FC, 스프링 빈 객체 사용 X -> 클래스 ㅔㅈ공
+	컨트롤러를 구현한 것과 비슷한 방식으로 서버를 구현할 수 있다
+	- WebSocketHandler 클래스
+	- Sockjs 연동 : 웹 소켓을 사용할 수 없는 경우
+	
+	

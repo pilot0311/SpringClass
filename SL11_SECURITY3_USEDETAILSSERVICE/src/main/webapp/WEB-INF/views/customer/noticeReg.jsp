@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 	<link href="../css/customer.css" type="text/css" rel="stylesheet" />
 <div id="content">
 	<h2>공지사항</h2>
@@ -37,4 +38,17 @@
 		</p>
 		<%-- <input type="hidden" name="${_csrf.parameterName }" value="${_csrf.token }"> --%>
 	</form>
+	
+	 <div>
+      <ol>
+         <li>principal : <sec:authentication property="principal"/> </li>
+         
+         <!-- CustomerUser의 member 필드 -->
+         <li>memberVO : <sec:authentication property="principal.member"/> </li>
+         <li>사용자 ID :  <sec:authentication property="principal.member.id"/> </li>
+         <li>사용자 이름 : <sec:authentication property="principal.member.name"/> </li>
+         <li>사용자 권한 목록 :  <sec:authentication property="principal.member.authList"/> </li>
+      </ol>
+   </div>
+	
 </div>

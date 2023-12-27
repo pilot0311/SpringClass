@@ -1,6 +1,7 @@
 ﻿<%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
     <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+    <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags"%>
 	<div id="content">
 					<h2>공지사항 - ${name }</h2>
 					<h3 class="hidden">방문페이지 로그</h3>
@@ -76,9 +77,11 @@
  							
 						</tbody>
 					</table>
+					<sec:authorize access="hasAnyRole('ADMIN')">
 					<p class="article-comment margin-small">
 						<a class="btn-write button" href="noticeReg.htm">글쓰기</a>
 					</p>
+					</sec:authorize>
 					<p id="cur-page" class="margin-small">
 						<span class="strong">1</span> /
 						10	page

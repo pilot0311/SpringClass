@@ -1,6 +1,7 @@
 package org.doit.ik.domain;
 
 import java.util.Date;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,5 +23,8 @@ public class MemberVO {
 	private Date   regdate;
 	private int point;
 	
+	private boolean enabled;
+	
+	private List<AuthVO> authList;
 	
 }

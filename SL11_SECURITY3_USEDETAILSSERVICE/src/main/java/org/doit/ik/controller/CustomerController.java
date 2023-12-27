@@ -3,6 +3,7 @@ package org.doit.ik.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.security.Principal;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -120,13 +121,13 @@ public class CustomerController {
 	@GetMapping("/noticeEdit.htm")
 	public String noticeEdit(@RequestParam("seq")String seq, Model model) throws ClassNotFoundException, SQLException {
 		NoticeVO notice = this.noticeDao.getNotice(seq);
-		model.addAttribute("notice",notice);
+		model.addAttribute("notice",notice);	
 		return "customer.noticeEdit";
 	}
 	
 	
 	@PostMapping(value = "/noticeReg.htm")
-	public String noticeReg(String title, String content, NoticeVO notice,HttpServletRequest request)throws ClassNotFoundException, SQLException, IllegalStateException, IOException{
+	public String noticeReg(String title, String content, NoticeVO notice,HttpServletRequest request, Principal principal)throws ClassNotFoundException, SQLException, IllegalStateException, IOException{
 		 // 첨부된 파일 유무 확인
 		CommonsMultipartFile multipartFile = notice.getFile();
 		//서버에 배포했을 경우의 실제 저장 경로
@@ -147,11 +148,11 @@ public class CustomerController {
 		}
 		// 작성자 X 로그인 햐야지만 글작성 가능(spring.sequrity)
 		// 세션 사용
-		notice.setWriter("pilot");
+		notice.setWriter(principal.getName());
 		//int insertCount = this.noticeDao.insert(notice);
 		int insertCount = 1;
 		//this.noticeDao.insertAndPointUpofMember(notice, "pilot");
-		this.memberShipService.insertAndPointUpofMember(notice, "pilot");
+		this.memberShipService.insertAndPointUpofMember(notice, principal.getName());
 		if (insertCount == 1) {
 			return "redirect:notice.htm";
 		}else {

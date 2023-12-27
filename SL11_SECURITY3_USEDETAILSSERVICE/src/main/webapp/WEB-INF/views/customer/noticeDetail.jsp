@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
     <link href="../css/customer.css" type="text/css" rel="stylesheet" />
 <div id="content">
 					<h2>공지사항</h2>
@@ -64,8 +66,13 @@
 						</div>
 					</div>
 					<p class="article-comment margin-small">
-						<a class="btn-list button" href="notice.htm">목록</a>						
-						<a class="btn-edit button" href="noticeEdit.htm?seq=${notice.seq }">수정</a>
+						<a class="btn-list button" href="notice.htm">목록</a>
+						<sec:authorize access="isAuthenticated()">
+							<sec:authentication property="principal" var="puser"/>
+							<c:if test="${notice.writer eq puser.member.id }">						
+								<a class="btn-edit button" href="noticeEdit.htm?seq=${notice.seq }">수정</a>
+							</c:if>
+						</sec:authorize>
 						<%-- <a class="btn-del button" href="noticeDel.htm?seq=${notice.seq }">삭제</a> --%>
 						<a class="btn-del button" href="noticeDel.htm?seq=${notice.seq }&filesrc=${notice.filesrc}">삭제</a>
 						<script>
